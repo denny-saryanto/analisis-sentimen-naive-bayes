@@ -1,0 +1,11 @@
+matplotlib
+pandas
+numpy
+seaborn
+nltk
+flask
+emoji
+sklearn
+Sastrawi
+nlp-id
+
