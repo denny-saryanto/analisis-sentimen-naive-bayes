@@ -8,6 +8,7 @@ from shutil import copyfile
 from sklearn.model_selection import train_test_split
 import time
 from sklearn.feature_extraction.text import TfidfVectorizer
+from whitenoise import WhiteNoise
 
 #-- Declare Input --#
 df = 'dataset/dataframe/df.csv'
@@ -22,6 +23,8 @@ PATH= {
 
 #-- Web Based Start --#
 app = Flask(__name__)
+
+app.wsgi_app = WhiteNoise(app.wsgi_app, root="static/")
 
 @app.route('/', methods=['POST', 'GET'])
 def main():

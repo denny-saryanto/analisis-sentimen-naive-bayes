@@ -1,4 +1,5 @@
 python-dotenv
+whitenoise
 gunicorn
 Cython
 matplotlib
