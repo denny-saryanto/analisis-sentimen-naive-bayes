@@ -10,13 +10,13 @@ import time
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 #-- Declare Input --#
-df = 'app/dataset/dataframe/df.csv'
+df = 'dataset/dataframe/df.csv'
 
 PATH= {
-    'NORMALFILE' : 'app/dataset/preprocessing/normalisasi.csv',
-    'STOPWORDS' : 'app/dataset/preprocessing/stopwords_id.txt',
-    'KAMUS_EMOJI' : 'app/dataset/preprocessing/emoji.csv',
-    'KAMUS_EMOTICON' : 'app/dataset/preprocessing/emoticon.json',
+    'NORMALFILE' : 'dataset/preprocessing/normalisasi.csv',
+    'STOPWORDS' : 'dataset/preprocessing/stopwords_id.txt',
+    'KAMUS_EMOJI' : 'dataset/preprocessing/emoji.csv',
+    'KAMUS_EMOTICON' : 'dataset/preprocessing/emoticon.json',
 }
 #-- Declare Input End --#
 
@@ -37,7 +37,7 @@ def model_manager():
 
 @app.route('/api/predict', methods=['POST', 'GET'])
 def predict_input():
-    PATH_FILE = 'app/pretrained/'
+    PATH_FILE = 'pretrained/'
     if request.method == 'POST':
         data = request.get_json()
         filename_model = PATH_FILE + data['model_name']
@@ -57,7 +57,7 @@ def predict_input():
 
 @app.route('/api/predict/file', methods=['POST'])
 def predict_input_file():
-    PATH_FILE = 'app/pretrained/'
+    PATH_FILE = 'pretrained/'
     if request.method == 'POST':
         data = request.files['file']
         data = pd.read_csv(data)
@@ -69,8 +69,8 @@ def predict_input_file():
         result = text_preprocess.output(export=False)
         features = tfidf.transform(result['text_string_stemmed']).toarray()
         data['sentiment'] = model.predict(features)
-        data.to_csv('app/dataset/predict_file/pred.csv', index=False)
-        count = CountDF('app/dataset/predict_file/pred.csv')
+        data.to_csv('dataset/predict_file/pred.csv', index=False)
+        count = CountDF('dataset/predict_file/pred.csv')
         count_result = count.count_labels(labels='sentiment')
         count_json = {
             'result' : "Upload Success",
@@ -95,8 +95,8 @@ def file_stopwords_replace():
         data = request.files['file']
         if data != '' or data != None:
             data.filename = 'stopwords_id.txt'
-            data.save('app/dataset/preprocessing/'+data.filename)
-            PATH['STOPWORDS'] = 'app/dataset/preprocessing/stopwords_id.txt'
+            data.save('dataset/preprocessing/'+data.filename)
+            PATH['STOPWORDS'] = 'dataset/preprocessing/stopwords_id.txt'
             return jsonify({'result' : 'replace stopwords success'})
         else:
             return jsonify({'result' : 'cant replace stopwords'})
@@ -111,8 +111,8 @@ def file_emoji_replace():
         data = request.files['file']
         if data != '' or data != None:
             data.filename = 'emoji.csv'
-            data.save('app/dataset/preprocessing/'+data.filename)
-            PATH['KAMUS_EMOJI'] = 'app/dataset/preprocessing/emoji.csv'
+            data.save('dataset/preprocessing/'+data.filename)
+            PATH['KAMUS_EMOJI'] = 'dataset/preprocessing/emoji.csv'
             return jsonify({'result' : 'replace emoji success'})
         else:
             return jsonify({'result' : 'cant replace emoji'})
@@ -127,8 +127,8 @@ def file_emoticon_replace():
         data = request.files['file']
         if data != '' or data != None:
             data.filename = 'emoticon.json'
-            data.save('app/dataset/preprocessing/'+data.filename)
-            PATH['KAMUS_EMOTICON'] = 'app/dataset/preprocessing/emot.json'
+            data.save('dataset/preprocessing/'+data.filename)
+            PATH['KAMUS_EMOTICON'] = 'dataset/preprocessing/emot.json'
             return jsonify({'result' : 'replace emoticon success'})
         else:
             return jsonify({'result' : 'cant replace emoticon'})
@@ -143,8 +143,8 @@ def file_normalization_replace():
         data = request.files['file']
         if data != '' or data != None:
             data.filename = 'normalisasi.csv'
-            data.save('app/dataset/preprocessing/'+data.filename)
-            PATH['NORMALFILE'] = 'app/dataset/preprocessing/normalisasi.csv'
+            data.save('dataset/preprocessing/'+data.filename)
+            PATH['NORMALFILE'] = 'dataset/preprocessing/normalisasi.csv'
             return jsonify({'result' : 'replace stopwords success'})
         else:
             return jsonify({'result' : 'cant replace stopwords'})
@@ -168,8 +168,8 @@ def api_counts_labels():
 @app.route('/api/count/words', methods=['POST'])
 def api_counts_words():
     if request.method == 'POST':
-        df = pd.read_csv('app/dataset/preprocessing/df_preprocess.csv')
-        count = CountDF('app/dataset/preprocessing/df_preprocess.csv')
+        df = pd.read_csv('dataset/preprocessing/df_preprocess.csv')
+        count = CountDF('dataset/preprocessing/df_preprocess.csv')
         count_result = count.count_words(labels='stopwords_stemmed', words=10)
         count_result_positive = count.count_words_label(df['text_string_stemmed'].loc[df['label'] == 'positif'], words=10)
         count_result_neutral = count.count_words_label(df['text_string_stemmed'].loc[df['label'] == 'netral'], words=10)
@@ -216,7 +216,7 @@ def api_get_info():
 @app.route('/api/file/', methods=['GET'])
 def api_file_manager_get():
     get_size = []
-    folder_file = 'app/pretrained'
+    folder_file = 'pretrained'
     for file_data in os.listdir(folder_file):
         file_stat = os.stat(folder_file + file_data)
         size = file_stat.st_size / (1024 * 1024)
@@ -233,11 +233,11 @@ def api_file_merge():
     if request.method == 'POST' and 'file' in request.files:
         file_upload = request.files['file']
         if file_upload != '' or file_upload != None:
-            file_upload.save(os.path.join('app/dataset/dataframe', file_upload.filename))
-            if len(glob.glob('app/dataset/dataframe/*.csv')) != 0:
-                all_filenames = [i for i in glob.glob('app/dataset/dataframe/*.csv')]
+            file_upload.save(os.path.join('dataset/dataframe', file_upload.filename))
+            if len(glob.glob('dataset/dataframe/*.csv')) != 0:
+                all_filenames = [i for i in glob.glob('dataset/dataframe/*.csv')]
                 combined_csv = pd.concat([pd.read_csv(f) for f in all_filenames ])
-                combined_csv.to_csv("app/dataset/dataframe/df.csv", index=False, encoding='utf-8-sig')
+                combined_csv.to_csv("dataset/dataframe/df.csv", index=False, encoding='utf-8-sig')
                 return jsonify({'result' : 'upload and merge success'})
             else:
                 return jsonify({'result' : 'no file'})
@@ -246,9 +246,9 @@ def api_file_merge():
     elif request.method == 'POST' and 'file' not in request.files:
         data = request.get_json()
         if data['command'] == 'reset':
-            for file_name in glob.glob('app/dataset/dataframe/*.csv'):
+            for file_name in glob.glob('dataset/dataframe/*.csv'):
                 os.remove(file_name)
-            copyfile('app/dataset/dataframe/backup/df.csv', 'app/dataset/dataframe/df.csv')
+            copyfile('dataset/dataframe/backup/df.csv', 'dataset/dataframe/df.csv')
             return jsonify({'result' : 'reset success'})
         else:
             return jsonify({'result' : 'fail to reset or split'})
@@ -257,7 +257,7 @@ def api_file_merge():
 
 @app.route('/api/model/info', methods=['GET'])
 def api_model_info():
-    file_json = open('app/info/data.json', 'r')
+    file_json = open('info/data.json', 'r')
     data = json.load(file_json)
     file_json.close()
     return data
@@ -266,7 +266,7 @@ def api_model_info():
 def api_model_train():
     if request.method == 'POST':
         start_time = time.time()
-        df_csv = pd.read_csv('app/dataset/dataframe/df.csv')
+        df_csv = pd.read_csv('dataset/dataframe/df.csv')
         full_text_pre = TextPreprocessing(df_csv['text'], df_csv['sentiment'], PATH)
         result = full_text_pre.output(export=True)
         tfidf_train = Vectorize(result['text_string_stemmed'])
