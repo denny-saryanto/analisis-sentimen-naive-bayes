@@ -1,11 +1,11 @@
+Cython
 matplotlib
 pandas
 numpy
-seaborn
-nltk
 flask
-emoji
 sklearn
 Sastrawi
 nlp-id
-
+emoji
+seaborn
+nltk
